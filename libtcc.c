@@ -782,6 +782,42 @@ LIBTCCAPI int tcc_compile_string(TCCState *s, const char *str)
     return tcc_compile(s, s->filetype, str, -1);
 }
 
+LIBTCCAPI int tcc_compile_string_wrapped(TCCState *s1, const char *head, const char *str, const char *footer)
+{
+    tcc_enter_state(s1);
+    s1->error_set_jmp_enabled = 1;
+
+    if (setjmp(s1->error_jmp_buf) == 0) {
+        s1->nb_errors = 0;
+
+        int len1 = strlen(head), len2 = strlen(str), len3 = strlen(footer);
+        tcc_open_bf(s1, "<string>", len1+len2+len3);
+        memcpy(file->buffer, head, len1);
+        memcpy(file->buffer + len1, str, len2);
+        memcpy(file->buffer + len1 + len2, str, len3);
+
+        preprocess_start(s1, s1->filetype);
+        tccgen_init(s1);
+
+        if (s1->output_type == TCC_OUTPUT_PREPROCESS) {
+            tcc_preprocess(s1);
+        } else {
+            tccelf_begin_file(s1);
+            if (s1->filetype & (AFF_TYPE_ASM | AFF_TYPE_ASMPP)) {
+                tcc_assemble(s1, !!(s1->filetype & AFF_TYPE_ASMPP));
+            } else {
+                tccgen_compile(s1);
+            }
+            tccelf_end_file(s1);
+        }
+    }
+    tccgen_finish(s1);
+    preprocess_end(s1);
+    s1->error_set_jmp_enabled = 0;
+    tcc_exit_state(s1);
+    return s1->nb_errors != 0 ? -1 : 0;
+}
+
 /* define a preprocessor symbol. value can be NULL, sym can be "sym=val" */
 LIBTCCAPI void tcc_define_symbol(TCCState *s1, const char *sym, const char *value)
 {
