@@ -12,6 +12,7 @@ sources = [
   'tccgen.c',
   'tccelf.c',
   'tccasm.c',
+  'tccdbg.c',
   'tccrun.c',
 ]
 
