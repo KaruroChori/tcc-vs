@@ -1,4 +1,7 @@
 name: build and test
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -8,15 +11,25 @@ on:
 
 jobs:
   meson:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-13]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt remove -y firefox
-        sudo apt upgrade -y
-        sudo apt install -y meson
+        if [ "${{ contains(matrix.os, 'ubuntu') }}" = "true" ]; then
+          sudo apt update
+          sudo apt remove -y firefox
+          sudo apt upgrade -y
+          sudo apt install -y python3-pip python3-setuptools
+          python3 -m pip install meson ninja
+        else
+          brew update
+          brew install meson ninja
+        fi
 
     - name: Configure and build
       run: |
@@ -32,7 +45,7 @@ jobs:
       run: ./configure && make && make test -k
 
   test-x86_64-osx:
-    runs-on: macos-11
+    runs-on: macos-13 # fails on latest(14)
     timeout-minutes: 2
     steps:
     - uses: actions/checkout@v4
