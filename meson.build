@@ -51,6 +51,14 @@ elif host_arch == 'x86_64'
   endif
 
   cdata.set('TCC_TARGET_X86_64', true)
+elif host_arch == 'risc64'
+  sources += [
+    'riscv64-gen.c', 
+    'riscv64-link.c', 
+    'riscv64-asm.c'
+  ]
+  cdata.set('TCC_TARGET_RISCV64', true)
+
 elif host_arch == 'arm'
   sources += [
     'arm-gen.c',
@@ -101,9 +109,12 @@ runtime_headers = [
   'include/float.h',
   'include/stdalign.h',
   'include/stdarg.h',
+  'include/stdatomic.h',
   'include/stdbool.h',
   'include/stddef.h',
   'include/stdnoreturn.h',
+  'include/tccdefs.h',
+  'include/tgmath.h',
   'include/varargs.h',
 ]
 install_headers(runtime_headers, install_dir: tccdir / 'include')
