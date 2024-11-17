@@ -140,6 +140,14 @@ libtcc_dep = declare_dependency(
   variables: {'libdir': get_option('libdir')},
 )
 
+if get_option('tests')
+    subdir(['./tests/'])
+endif
+
+if get_option('examples')
+    subdir(['./examples/'])
+endif
+
 pkg = import('pkgconfig')
 pkg.generate(
   tcc,
