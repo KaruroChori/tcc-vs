@@ -525,7 +525,7 @@ static int pe_put_long_secname(char *secname, const char *name)
     const char *d = dwarf_secs;
     do {
         if (0 == strcmp(d, name)) {
-            sprintf(secname, "/%d", (int)(d - dwarf_secs + 4));
+            snprintf(secname, 8, "/%d", (int)(d - dwarf_secs + 4));
             return 1;
         }
         d = strchr(d, 0) + 1;
@@ -845,7 +845,7 @@ found_dll:
     return s;
 }
 
-void pe_free_imports(struct pe_info *pe)
+static void pe_free_imports(struct pe_info *pe)
 {
     int i;
     for (i = 0; i < pe->imp_count; ++i) {
@@ -1133,9 +1133,7 @@ static int pe_section_class(Section *s)
     name = s->name;
 
     if (0 == memcmp(name, ".stab", 5) || 0 == memcmp(name, ".debug_", 7)) {
-        if (s->s1->do_debug)
-            return sec_debug;
-
+        return sec_debug;
     } else if (flags & SHF_ALLOC) {
         if (type == SHT_PROGBITS
          || type == SHT_INIT_ARRAY
@@ -1871,10 +1869,11 @@ static unsigned pe_add_uwwind_info(TCCState *s1)
             0x04, // UBYTE Size of prolog
             0x02, // UBYTE Count of unwind codes
             0x05, // UBYTE: 4 Frame Register (rbp), UBYTE: 4 Frame Register offset (scaled)
-            // USHORT * n Unwind codes array
+            // USHORT * n Unwind codes array (descending order)
             // 0x0b, 0x01, 0xff, 0xff, // stack size
-            0x04, 0x03, // set frame ptr (mov rsp -> rbp)
-            0x01, 0x50  // push reg (rbp)
+            // UBYTE offset of end of instr in prolog + 1, UBYTE:4 operation, UBYTE:4 info
+            0x04, 0x03, // 3:0 UWOP_SET_FPREG (mov rsp -> rbp)
+            0x01, 0x50, // 0:5 UWOP_PUSH_NONVOL (push rbp)
         };
 
         Section *s = text_section;
@@ -1994,7 +1993,7 @@ static void pe_add_runtime(TCCState *s1, struct pe_info *pe)
             tcc_add_support(s1, TCC_LIBTCC1);
         for (pp = libs; 0 != (p = *pp); ++pp) {
             if (*p)
-                tcc_add_library_err(s1, p);
+                tcc_add_library(s1, p);
             else if (PE_DLL != pe_type && PE_GUI != pe_type)
                 break;
         }
@@ -2067,8 +2066,8 @@ ST_FUNC int pe_output_file(TCCState *s1, const char *filename)
 #ifdef CONFIG_TCC_BCHECK
     tcc_add_bcheck(s1);
 #endif
-    pe_add_runtime(s1, &pe);
     tcc_add_pragma_libs(s1);
+    pe_add_runtime(s1, &pe);
     resolve_common_syms(s1);
     pe_set_options(s1, &pe);
     pe_check_symbols(&pe);
