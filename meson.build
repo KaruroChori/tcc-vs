@@ -1,7 +1,7 @@
 project(
   'tcc',
   'c',
-  version: '0.9.28rc-vs',
+  version: '0.9.28vs-rc',
 )
 
 cc = meson.get_compiler('c')
@@ -127,17 +127,26 @@ configure_file(
 threads_dep = dependency('threads')
 dl_dep = cc.find_library('dl', required: false)
 
-tcc = library(
+
+libtcc = library(
   'tcc',
   sources,
   c_args: ['-DONE_SOURCE=0'],
   install: true,
   dependencies: [threads_dep, dl_dep],
 )
+
 libtcc_dep = declare_dependency(
-  link_with: tcc,
+  link_with: libtcc,
   include_directories: include_directories('.'),
   variables: {'libdir': get_option('libdir')},
+)
+
+tcc = executable(
+  'tcc',
+  sources: ['tcc.c'],
+  link_with: libtcc,
+  install: true
 )
 
 if get_option('tests')
@@ -150,7 +159,7 @@ endif
 
 pkg = import('pkgconfig')
 pkg.generate(
-  tcc,
+  libtcc,
   name: 'libtcc',
   description: 'Tiny C Compiler',
   url: 'https://bellard.org/tcc/',
