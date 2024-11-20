@@ -146,8 +146,26 @@ tcc = executable(
   'tcc',
   sources: ['tcc.c'],
   link_with: libtcc,
-  install: true
+  install: not meson.is_subproject(),
 )
+
+makeinfo = find_program('makeinfo')
+if makeinfo.found()
+#  custom_target('docs-html', output: 'tcc-doc.html', input: 'tcc-doc.texi', command:['makeinfo','@INPUT@','--no-split','--html','--number-sections','-o','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('datadir'))
+#  custom_target('docs-info', output: 'tcc-doc.info', input: 'tcc-doc.texi', command:['makeinfo','@INPUT@','-o','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('infodir'))
+endif
+
+#perl = find_program('perl')
+#if perl.found()
+#  pod = custom_target('docs-pod', output: 'tcc-doc.pod', input: 'tcc-doc.texi', command:['perl','./texi2pod.pl','@INPUT@','@OUTPUT@'])
+#  #TODO Add entry for common.texi
+#
+#  pod2man = find_program('pod2man')
+#  if pod2man.found()
+#    #custom_target('docs-man', depends: [pod], output: 'tcc.doc.1', input: 'tcc-doc.pod', command:['pod2man','--section=1', '--center="Tiny C Compiler"', '--release="'+meson.project_version()+'"','@INPUT@','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('mandir'))
+#  endif 
+#endif 
+
 
 if get_option('tests')
     subdir(['./tests/'])
