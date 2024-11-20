@@ -1,2 +1,1 @@
 option('tests', type: 'boolean', value: true)
-option('examples', type: 'boolean', value: false)
