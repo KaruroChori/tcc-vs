@@ -798,7 +798,7 @@ LIBTCCAPI int tcc_compile_string_wrapped(TCCState *s1, const char *head, const c
         tcc_open_bf(s1, "<string>", len1+len2+len3);
         memcpy(file->buffer, head, len1);
         memcpy(file->buffer + len1, str, len2);
-        memcpy(file->buffer + len1 + len2, str, len3);
+        memcpy(file->buffer + len1 + len2, footer, len3);
 
         preprocess_start(s1, s1->filetype);
         tccgen_init(s1);
