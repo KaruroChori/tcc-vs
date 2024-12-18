@@ -53,11 +53,7 @@ elif host_arch == 'x86_64'
 
   cdata.set('TCC_TARGET_X86_64', true)
 elif host_arch == 'risc64'
-  sources += [
-    'riscv64-gen.c', 
-    'riscv64-link.c', 
-    'riscv64-asm.c'
-  ]
+  sources += ['riscv64-gen.c', 'riscv64-link.c', 'riscv64-asm.c']
   cdata.set('TCC_TARGET_RISCV64', true)
 
 elif host_arch == 'arm'
@@ -128,7 +124,6 @@ configure_file(
 threads_dep = dependency('threads')
 dl_dep = cc.find_library('dl', required: false)
 
-
 libtcc = library(
   'tcc',
   sources,
@@ -150,10 +145,10 @@ tcc = executable(
   install: not meson.is_subproject(),
 )
 
-makeinfo = find_program('makeinfo',required:false)
+makeinfo = find_program('makeinfo', required: false)
 if makeinfo.found()
-#  custom_target('docs-html', output: 'tcc-doc.html', input: 'tcc-doc.texi', command:['makeinfo','@INPUT@','--no-split','--html','--number-sections','-o','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('datadir'))
-#  custom_target('docs-info', output: 'tcc-doc.info', input: 'tcc-doc.texi', command:['makeinfo','@INPUT@','-o','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('infodir'))
+  #  custom_target('docs-html', output: 'tcc-doc.html', input: 'tcc-doc.texi', command:['makeinfo','@INPUT@','--no-split','--html','--number-sections','-o','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('datadir'))
+  #  custom_target('docs-info', output: 'tcc-doc.info', input: 'tcc-doc.texi', command:['makeinfo','@INPUT@','-o','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('infodir'))
 endif
 
 #perl = find_program('perl', required:false)
@@ -164,12 +159,13 @@ endif
 #  pod2man = find_program('pod2man', required:false)
 #  if pod2man.found()
 #    #custom_target('docs-man', depends: [pod], output: 'tcc.doc.1', input: 'tcc-doc.pod', command:['pod2man','--section=1', '--center="Tiny C Compiler"', '--release="'+meson.project_version()+'"','@INPUT@','@OUTPUT@'], install: not meson.is_subproject(), install_dir : get_option('mandir'))
-#  endif 
-#endif 
+#  endif
+#endif
 
+subdir('lib')
 
 if get_option('tests')
-    subdir(['./tests/'])
+  subdir(['./tests/'])
 endif
 
 pkg = import('pkgconfig')
