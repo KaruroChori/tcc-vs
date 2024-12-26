@@ -23,7 +23,20 @@ cdata.set_quoted('TCC_VERSION', meson.project_version())
 tccdir = get_option('prefix') / get_option('libdir') / 'tcc'
 cdata.set_quoted('CONFIG_TCCDIR', tccdir)
 
-host_os = host_machine.system()
+# Configure crosscompiling
+
+host_os = get_option('cross_os')
+if host_os == ''
+  host_os = host_machine.system()
+endif
+
+host_arch = get_option('cross_arch')
+if host_arch == ''
+  host_arch = host_machine.cpu_family()
+endif
+
+# Configure compiling arch and os
+
 if host_os == 'windows'
   sources += 'tccpe.c'
   cdata.set('TCC_TARGET_PE', true)
@@ -32,7 +45,6 @@ elif host_os == 'darwin'
   cdata.set('TCC_TARGET_MACHO', true)
 endif
 
-host_arch = host_machine.cpu_family()
 if host_arch == 'x86'
   sources += [
     'i386-gen.c',
