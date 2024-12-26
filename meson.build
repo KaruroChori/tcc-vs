@@ -181,12 +181,15 @@ if get_option('tests')
   subdir(['./tests/'])
 endif
 
-pkg = import('pkgconfig')
-pkg.generate(
-  libtcc,
-  name: 'libtcc',
-  description: 'Tiny C Compiler',
-  url: 'https://bellard.org/tcc/',
-)
+if get_option('override_dependency')
 
-meson.override_dependency('libtcc', libtcc_dep)
+  pkg = import('pkgconfig')
+  pkg.generate(
+    libtcc,
+    name: 'libtcc',
+    description: 'Tiny C Compiler',
+    url: 'https://bellard.org/tcc/',
+  )
+
+  meson.override_dependency('libtcc', libtcc_dep)
+endif

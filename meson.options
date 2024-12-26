@@ -1,3 +1,4 @@
 option('tests', type: 'boolean', value: true)
 option('cross_arch', type: 'string', value: '')
 option('cross_os', type: 'string', value: '')
+option('override_dependency', type: 'boolean', value: true)
