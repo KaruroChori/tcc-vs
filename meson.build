@@ -162,7 +162,8 @@ endif
 #  endif
 #endif
 
-subdir('lib')
+#Not complete yet
+#subdir('lib')
 
 if get_option('tests')
   subdir(['./tests/'])

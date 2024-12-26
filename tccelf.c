@@ -2679,10 +2679,15 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
         mode = 0666;
     else
         mode = 0777;
-    unlink(filename);
-    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, mode);
-    if (fd < 0 || (f = fdopen(fd, "wb")) == NULL)
-        return tcc_error_noabort("could not write '%s: %s'", filename, strerror(errno));
+    if (filename[0] == '^'){
+        f = open_memstream((void*)(filename+1),(void*)(filename+1+sizeof(void*)));
+    }
+    else{
+        unlink(filename);
+        fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, mode);
+        if (fd < 0 || (f = fdopen(fd, "wb")) == NULL)
+            return tcc_error_noabort("could not write '%s: %s'", filename, strerror(errno));
+    }
     if (s1->verbose)
         printf("<- %s\n", filename);
 #ifdef TCC_TARGET_COFF
