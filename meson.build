@@ -64,7 +64,7 @@ elif host_arch == 'x86_64'
   endif
 
   cdata.set('TCC_TARGET_X86_64', true)
-elif host_arch == 'risc64'
+elif host_arch == 'riscv64'
   sources += ['riscv64-gen.c', 'riscv64-link.c', 'riscv64-asm.c']
   cdata.set('TCC_TARGET_RISCV64', true)
 
