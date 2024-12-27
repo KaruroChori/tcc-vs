@@ -146,7 +146,7 @@ libtcc = library(
 
 libtcc_dep = declare_dependency(
   link_with: libtcc,
-  include_directories: include_directories('.'),
+  include_directories: include_directories('./meson-include/'),
   variables: {'libdir': get_option('libdir')},
 )
 

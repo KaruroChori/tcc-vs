@@ -2679,8 +2679,12 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
         mode = 0666;
     else
         mode = 0777;
-    if (filename[0] == '^'){
+    if (filename[0] == '\e'){
+        //TODO: A different workaround is needed as win does not support POSIX open_memstream
+#if !defined(_WIN32) && !defined(_WIN64)
         f = open_memstream((void*)(filename+1),(void*)(filename+1+sizeof(void*)));
+#endif
+
     }
     else{
         unlink(filename);
