@@ -20,7 +20,7 @@ sources = [
 cdata = configuration_data()
 cdata.set_quoted('TCC_VERSION', meson.project_version())
 
-tccdir = get_option('prefix') / get_option('libdir') / 'tcc'
+tccdir = get_option('prefix') / get_option('libdir') / get_option('cross_prefix') + 'tcc'
 cdata.set_quoted('CONFIG_TCCDIR', tccdir)
 
 # Configure crosscompiling
@@ -137,7 +137,7 @@ threads_dep = dependency('threads')
 dl_dep = cc.find_library('dl', required: false)
 
 libtcc = library(
-  'tcc',
+  get_option('cross_prefix') + 'tcc',
   sources,
   c_args: ['-DONE_SOURCE=0'],
   install: true,
@@ -151,7 +151,7 @@ libtcc_dep = declare_dependency(
 )
 
 tcc = executable(
-  'tcc',
+  get_option('cross_prefix') + 'tcc',
   sources: ['tcc.c'],
   link_with: libtcc,
   install: not meson.is_subproject(),
@@ -186,10 +186,10 @@ if get_option('override_dependency')
   pkg = import('pkgconfig')
   pkg.generate(
     libtcc,
-    name: 'libtcc',
+    name: get_option('cross_prefix') + 'libtcc',
     description: 'Tiny C Compiler',
     url: 'https://bellard.org/tcc/',
   )
 
-  meson.override_dependency('libtcc', libtcc_dep)
+  meson.override_dependency(get_option('cross_prefix') + 'libtcc', libtcc_dep)
 endif
